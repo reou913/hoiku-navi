@@ -1,0 +1,52 @@
+# 毎週月曜の朝6時（日本時間）に、国・県・市の資料を巡回して Supabase に登録する
+name: 保育の資料を巡回
+
+on:
+  schedule:
+    - cron: "0 21 * * 0"   # 日曜21:00（世界標準時）＝月曜6:00（日本時間）
+  workflow_dispatch:        # 「Run workflow」ボタンで、いつでも手動で動かせる
+
+permissions:
+  contents: read            # このリポジトリには書きこまない（資料は Supabase に入れる）
+  issues: write             # 確かめてほしい資料があるときに Issue を作るため
+
+concurrency:
+  group: crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: リポジトリを取り出す
+        uses: actions/checkout@v4
+
+      - name: Python を用意する
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: PDF・Word・Excel を読む部品を入れる
+        run: pip install pypdf==5.4.0 python-docx==1.1.2 openpyxl==3.1.5
+
+      - name: 巡回する
+        id: crawl
+        env:
+          HOIKU_ADMIN_URL: ${{ secrets.HOIKU_ADMIN_URL }}
+          HOIKU_CRAWLER_TOKEN: ${{ secrets.HOIKU_CRAWLER_TOKEN }}
+        run: python3 scripts/crawl.py
+
+      - name: 確かめてほしい資料があれば Issue で知らせる
+        if: steps.crawl.outputs.notify_count != '0' && steps.crawl.outputs.notify_count != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="保育の資料：確かめてください"
+          NUM=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number')
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body-file .report.md
+          else
+            gh issue create --title "$TITLE" --body-file .report.md
+          fi
