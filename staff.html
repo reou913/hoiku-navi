@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171412" media="(prefers-color-scheme: dark)">
+<title>保育者の方へ｜保育ナビ（仮）</title>
+<meta name="description" content="感染症対策、事故防止、手続きなど、保育者向けの公式資料と園内資料。資料係しおりへの質問。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body data-aud="staff">
+<div class="wrap">
+<header class="topbar">
+  <a class="brand" href="./"><span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V8l8-5 8 5v11"/><path d="M9 19v-5h6v5"/></svg></span>保育ナビ<small style="font-weight:500;color:var(--sub);font-size:.75rem">（仮）</small></a>
+  <nav class="nav" aria-label="ページ">
+    <a href="parent.html">保護者の方</a>
+    <a href="staff.html" aria-current="page">保育者の方</a>
+    <a href="facilities.html">施設をさがす</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow">保育者の方へ</span>
+    <h1>保育の手順と、公式のガイドライン</h1>
+    <p class="lead">国・県・市の資料と、園内の手順書をまとめて探せます。資料係の「しおり」は、手順とページを示して答えます。園内資料は、ログインした保育者だけが見られます。</p>
+  </section>
+  <div id="setup" class="setup" hidden></div>
+  <section class="ask" id="ask"></section>
+  
+  <section class="section" id="staff-area">
+    <h2>園内資料（保育者だけ）</h2>
+    <p class="note">園の手順書やマニュアルを登録すると、一覧と「しおり」の答えに使われます。ログインできるのは、名簿に登録された保育者だけです。</p>
+    <div class="panel" id="login-panel">
+      <form class="form-grid" id="login-form">
+        <label>メールアドレス<input id="email" type="email" autocomplete="username" required></label>
+        <label>パスワード<input id="pw" type="password" autocomplete="current-password" required></label>
+        <div class="row"><button class="btn" type="submit">ログイン</button><span class="status" id="login-status" role="status"></span></div>
+      </form>
+    </div>
+    <div class="panel" id="staff-panel" hidden>
+      <div class="row" style="justify-content:space-between">
+        <span class="badge-staff">保育者としてログイン中</span>
+        <button class="btn ghost small" id="logout" type="button">ログアウト</button>
+      </div>
+      <form class="form-grid" id="upload-form" style="margin-top:14px">
+        <label>ファイル（PDF・Word・Excel・テキスト、20MBまで）
+          <input id="file" type="file" accept=".pdf,.docx,.xlsx,.txt,.md" required></label>
+        <label>資料の名前<input id="doc-title" type="text" maxlength="200" placeholder="例：嘔吐・下痢のときの対応手順（令和8年度版）" required></label>
+        <label>分野
+          <select id="doc-cat">
+            <option>園内の手順</option><option>健康・感染症</option><option>安全・事故防止</option>
+            <option>食事・アレルギー</option><option>保育の内容</option><option>入園・手続き</option><option>学童・放課後</option><option>発達支援</option><option>その他</option>
+          </select></label>
+        <label>文字を直接貼る（スキャンしたPDFのときだけ）
+          <textarea id="paste" placeholder="文字の入っていないPDFは、Googleドライブで「Googleドキュメントで開く」と文字にできます。その文字をここに貼ってください。"></textarea>
+          <small>ここに文字があるときは、ファイルからは文字を取り出さず、こちらを使います。</small></label>
+        <div class="row"><button class="btn" type="submit" id="upload-btn">登録する</button>
+          <span class="status" id="upload-status" role="status" aria-live="polite"></span></div>
+        <p class="privacy" style="margin:0">子どもや保護者の名前、連絡先が入った資料は登録しないでください。見本の段階では、架空の園の資料だけを使います。</p>
+      </form>
+    </div>
+  </section>
+  <section class="section">
+    <h2>保育者向けの資料</h2>
+    <p class="note">国・県・市の公開資料（保護者向けのものも含む）と、ログインしたときは園内資料も出ます。</p>
+    <div id="docs"><div class="empty">読みこみ中…</div></div>
+  </section>
+</main>
+<p class="foot">国・県・市が公開している資料をもとにした、見本のサイトです。最新の情報は、市や各園で確かめてください。</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/staff.js"></script>
+</body>
+</html>

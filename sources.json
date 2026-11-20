@@ -1,0 +1,145 @@
+{
+  "_説明": "巡回する資料の一覧。enabled を false にすると巡回しません。audience と category を \"auto\" にすると、Claude が中身を読んで決めます。checked はこの一覧を作るときに中身を確かめた日です（空欄は、まだ確かめていない候補）。",
+  "documents": [
+    {
+      "title": "令和8年度 薩摩川内市 保育施設利用の手引き",
+      "url": "https://www.city.satsumasendai.lg.jp/material/files/group/20/R8_hoikusiori.pdf",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市 子育て支援課",
+      "audience": "both",
+      "category": "入園・手続き",
+      "checked": "2026-11-20",
+      "enabled": true
+    },
+    {
+      "title": "保育施設等一覧（市に申し込みが必要な施設）",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/4/16678.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "入園・手続き",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "私立幼稚園・認定こども園（1号認定）",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/4/6812.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "入園・手続き",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "企業主導型保育事業所・認可外保育施設",
+      "url": "https://www.city.satsumasendai.lg.jp/soshiki/1026/1/1/3/2460.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "入園・手続き",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "こども誰でも通園制度の実施施設",
+      "url": "https://www.city.satsumasendai.lg.jp/20250808/19291.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "子育て支援",
+      "checked": "",
+      "enabled": true
+    },
+    {
+      "title": "保育所における感染症対策ガイドライン（2018年改訂版・2023年一部改訂）",
+      "url": "https://www.mhlw.go.jp/content/10900000/20231010_policies_hoiku_25.pdf",
+      "issuer_level": "国",
+      "issuer": "こども家庭庁（作成：厚生労働省）",
+      "audience": "staff",
+      "category": "健康・感染症",
+      "checked": "2026-11-20",
+      "enabled": true
+    },
+    {
+      "title": "保育所に係る各種手続き（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ab14/kenko-fukushi/kodomo/kosodate-kaigi/tetsuzuki-hoiku.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "その他",
+      "checked": "2026-11-20",
+      "enabled": true
+    },
+    {
+      "title": "鹿児島県保育士・保育所支援センター",
+      "url": "https://www.pref.kagoshima.jp/ae32/hoikusihoikusyosiencenter.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "その他",
+      "checked": "",
+      "enabled": true
+    },
+    {
+      "_メモ": "候補：保育所保育指針（告示）。URLをこども家庭庁のページで確かめてから enabled を true に",
+      "title": "保育所保育指針",
+      "url": "https://www.mhlw.go.jp/file/06-Seisakujouhou-11900000-Koyoukintoujidoukateikyoku/0000160000.pdf",
+      "issuer_level": "国",
+      "issuer": "こども家庭庁（告示：厚生労働省）",
+      "audience": "staff",
+      "category": "保育の内容",
+      "checked": "",
+      "enabled": false
+    },
+    {
+      "_メモ": "候補：事故防止ガイドライン。URLをこども家庭庁のページで確かめてから enabled を true に",
+      "title": "教育・保育施設等における事故防止及び事故発生時の対応のためのガイドライン",
+      "url": "https://www.mhlw.go.jp/file/06-Seisakujouhou-11900000-Koyoukintoujidoukateikyoku/0000117166.pdf",
+      "issuer_level": "国",
+      "issuer": "こども家庭庁",
+      "audience": "staff",
+      "category": "安全・事故防止",
+      "checked": "",
+      "enabled": false
+    }
+  ],
+  "watch": [
+    {
+      "name": "私立幼稚園・認定こども園（1号認定）のページにある資料",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/4/6812.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "auto",
+      "include_words": [],
+      "exclude_words": ["申請書", "様式", "記入例"],
+      "max_files": 6,
+      "enabled": true
+    },
+    {
+      "name": "保育施設等一覧のページにある資料",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/4/16678.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "auto",
+      "include_words": [],
+      "exclude_words": ["申請書", "様式", "記入例"],
+      "max_files": 6,
+      "enabled": true
+    },
+    {
+      "name": "児童福祉・ひとり親福祉のページにある資料",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/5/index.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "auto",
+      "include_words": ["病児", "一時", "ファミリー", "子育て", "支援", "手当", "医療"],
+      "exclude_words": ["申請書", "様式", "記入例"],
+      "max_files": 6,
+      "enabled": true
+    }
+  ]
+}

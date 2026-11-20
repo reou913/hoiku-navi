@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF7F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171412" media="(prefers-color-scheme: dark)">
+<title>保育ナビ（仮）｜薩摩川内市の保育と子育ての情報</title>
+<meta name="description" content="国・県・市の保育や子育ての資料、薩摩川内市内の園の情報をまとめて見られるサイト（見本）です。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body data-aud="parent">
+<div class="wrap">
+<header class="topbar">
+  <a class="brand" href="./"><span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V8l8-5 8 5v11"/><path d="M9 19v-5h6v5"/></svg></span>保育ナビ<small style="font-weight:500;color:var(--sub);font-size:.75rem">（仮）</small></a>
+  <nav class="nav" aria-label="ページ">
+    <a href="parent.html">保護者の方</a>
+    <a href="staff.html">保育者の方</a>
+    <a href="facilities.html">施設をさがす</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow">薩摩川内市の保育と子育て</span>
+    <h1>保育の「わからない」を、<br>公式の資料からさがす。</h1>
+    <p class="lead">国・県・市が公開している資料と、市内の園・学童の情報を1か所にまとめました。AIの案内役は、ここにある資料だけをもとに、出典つきで答えます。</p>
+  </section>
+
+  <section class="finder" id="finder" aria-label="まとめてさがす"></section>
+
+  <h2 class="section" style="font-size:1.25rem;font-weight:900;margin:28px 0 0">ページから見る</h2>
+  <div class="doors">
+    <a class="door parent" href="parent.html">
+      <span id="face-parent"></span>
+      <h2>保護者の方へ</h2>
+      <p>入園の申し込み、保育料、子育ての支援など。案内役の「ひなた」が、やさしく答えます。</p>
+      <span class="go">保護者のページへ →</span>
+    </a>
+    <a class="door staff" href="staff.html">
+      <span id="face-staff"></span>
+      <h2>保育者の方へ</h2>
+      <p>感染症対策、事故防止、手続きなど。資料係の「しおり」が、手順とページを示します。</p>
+      <span class="go">保育者のページへ →</span>
+    </a>
+    <a class="door facility" href="facilities.html">
+      <span id="face-facility"></span>
+      <h2>施設をさがす</h2>
+      <p>市内の保育園・こども園・幼稚園と、学童（放課後児童クラブ）。定員や開所時間を見比べられます。</p>
+      <span class="go">施設の一覧へ →</span>
+    </a>
+  </div>
+
+  <section class="section">
+    <h2>このサイトのやくそく</h2>
+    <div class="points">
+      <ul>
+        <li>のせるのは、国・県・市の公開資料と、園が許可した情報だけです。</li>
+        <li>新しい資料は、人が中身を確かめてから公開します。</li>
+        <li>AIの答えには、どの資料の何ページかを示します。資料にないことは「資料にありません」と答えます。</li>
+        <li>お子さんや保護者の個人の情報は、あつかいません。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+<p class="foot">国・県・市が公開している資料をもとにした、見本のサイトです。最新の情報は、市や各園で確かめてください。</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/search.js"></script>
+<script>
+  for (const k of ["parent", "staff", "facility"]) document.getElementById("face-" + k).innerHTML = Hoiku.FACES[k];
+</script>
+</body>
+</html>
