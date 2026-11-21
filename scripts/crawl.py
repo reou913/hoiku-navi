@@ -113,6 +113,9 @@ class PageParser(HTMLParser):
 def text_from_pdf(data: bytes) -> tuple[str, int]:
     from pypdf import PdfReader
     reader = PdfReader(io.BytesIO(data))
+    # 印刷やコピーを制限する鍵がかかったPDF（開くのにパスワードは要らないもの）は、空のパスワードで鍵を外す
+    if reader.is_encrypted:
+        reader.decrypt("")
     pages = []
     for i, page in enumerate(reader.pages, start=1):
         try:
