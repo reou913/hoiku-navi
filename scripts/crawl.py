@@ -274,7 +274,7 @@ def main() -> int:
         DELAY_SECONDS = max(args.delay, 0.0)
 
     sources = json.loads(Path(args.sources).read_text(encoding="utf-8"))
-    report = {"new": [], "updated": [], "index_error": [], "failed": [], "same": 0, "skipped": 0}
+    report = {"new": [], "updated": [], "index_error": [], "failed": [], "retired": [], "same": 0, "skipped": 0}
     known: dict[str, dict] = {}
     if not args.dry_run:
         known = {d["url"]: d for d in call_admin({"action": "list"})}
@@ -303,6 +303,7 @@ def main() -> int:
                 "issuer_level": meta["issuer_level"], "issuer": meta.get("issuer", ""),
                 "audience": meta.get("audience", "auto"), "category": meta.get("category", "auto"),
                 "file_type": got["file_type"], "text": text,
+                "publish": bool(meta.get("publish")),   # auto_publish の見張りだけ true
             })
         except Exception as e:
             report["failed"].append((name, url, str(e)))
@@ -340,6 +341,10 @@ def main() -> int:
         exclude = w.get("exclude_words") or []
         want_pages = bool(w.get("pages")) and bool(words)
         host = urllib.parse.urlsplit(w["url"]).netloc
+        # 毎週の週報など：keep_latest 件だけ（ページの上にある新しいものから）拾い、auto_publish ならすぐ公開する
+        keep_latest = int(w.get("keep_latest") or 0)
+        limit = keep_latest or w.get("max_files", 10)
+        kept: list[str] = []
         count = 0
         for href, text in page["links"]:
             href = href.split("#")[0]
@@ -354,12 +359,23 @@ def main() -> int:
                 continue
             if any(k in label for k in exclude):
                 continue
-            if count >= w.get("max_files", 10):
+            if count >= limit:
                 break
             seen_all.add(href)
             count += 1
+            kept.append(href)
             meta = {k: w[k] for k in ("issuer_level", "issuer", "audience", "category") if k in w}
+            meta["publish"] = bool(w.get("auto_publish"))
             register(href, meta, label, "link")
+
+        # 古い週報の公開をやめる（retire_prefix で始まるURLのうち、今回拾った kept 以外）
+        if w.get("retire_prefix") and kept and not args.dry_run:
+            try:
+                res = call_admin({"action": "retire", "prefix": w["retire_prefix"], "keep": kept})
+                for r in res.get("retired", []):
+                    report["retired"].append((r["title"], r["url"], "古い週のため非公開にしました"))
+            except Exception as e:
+                report["failed"].append((w.get("name", w["url"]), w["url"], f"古い資料の非公開に失敗: {e}"))
 
     # 3. 報告を書く
     now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
@@ -376,9 +392,11 @@ def main() -> int:
             lines.append("")
 
     section("new", "新しく見つかった資料",
-            "Supabase の Table Editor → hoiku_documents で要約と見出しを確かめ、よければ published を true にしてください。")
+            "「未公開」のものは、Supabase の Table Editor → hoiku_documents で要約と見出しを確かめ、よければ published を true にしてください。"
+            "「公開中」のものは、毎週の週報など auto_publish にした資料で、自動で公開しています。")
     section("updated", "中身が変わった資料", "索引カードを作り直しました。公開中のものは、そのまま公開されています。")
     section("index_error", "索引カードを作れなかった資料", "次の巡回でもう一度作ります。続くときは Edge Function の Logs を見てください。")
+    section("retired", "公開をやめた古い資料", "毎週の週報などで、新しい週が出たので古い週を非公開にしました。")
     section("failed", "開けなかった・読めなかった資料",
             "URLが変わったか、古い形式・スキャンのPDFかもしれません。sources.json を直すか、保育者ページの「園内資料の登録」から文字にしたものを入れてください。")
     lines.append(f"変わりなし：{report['same']}件　上限で後回し：{report['skipped']}件")

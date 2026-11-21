@@ -7,7 +7,8 @@
 // 呼べるのは次の2つだけ
 //   ・巡回（GitHub Actions）……… 合言葉（x-hoiku-token）を付けて呼ぶ
 //       action: "list"   登録ずみの公開資料の一覧（URLと本文の指紋）
-//       action: "upsert" 公開資料を登録・更新する（新しい資料は published=false のまま）
+//       action: "upsert" 公開資料を登録・更新する（新しい資料は published=false のまま。publish: true なら公開）
+//       action: "retire" 古い週報などの公開をやめる
 //   ・名簿に載った保育者 ………… ログインして呼ぶ
 //       action: "add_internal"    園内資料を登録する（すぐに保育者ページに出る）
 //       action: "delete_internal" 園内資料を消す（ファイルも消す）
@@ -28,7 +29,7 @@ const ALLOWED_ORIGINS = [
 ];
 const CATEGORIES = [
   "入園・手続き", "費用・無償化", "健康・感染症", "安全・事故防止", "食事・アレルギー",
-  "保育の内容", "子育て支援", "学童・放課後", "発達支援", "園内の手順", "その他",
+  "保育の内容", "子育て支援", "学童・放課後", "発達支援", "補助金・助成", "感染症の流行", "園内の手順", "その他",
 ];
 const LEVELS = ["国", "県", "市", "園"];
 const FILE_TYPES = ["pdf", "html", "docx", "xlsx", "txt"];
@@ -118,6 +119,8 @@ const INDEX_PROMPT = `あなたは、保育・子育ての資料を整理する�
 
 # ルール
 - 書いてよいのは、資料に書かれていることだけです。推測で足しません。
+- 補助金・助成・貸付の資料なら、summary に「だれが使えるか・いくらか・募集期間や締め切り」を入れる（書かれていれば）。
+- 感染症の流行の情報（週報・注意報など）なら、summary に「どの地域の・いつ（第何週・何月何日）の・どの病気が警報や注意報か」を入れる。
 - headings は大事な見出しを最大15個。page は本文の [p.12] の印から読み取り、分からなければ null。
 - keywords は最大12個。ひらがな・言いかえ（例：「嘔吐」と「おう吐」と「吐いた」）も入れてよい。
 - faq は最大5個。保護者や保育者が実際に聞きそうな、短い質問文にします。
@@ -234,9 +237,24 @@ async function upsertPublic(p: Record<string, unknown>) {
     await db(`hoiku_documents?id=eq.${old.id}`, { method: "PATCH", body: JSON.stringify(row) }, { Prefer: "return=minimal" });
     return { result: card ? "updated" : "index_error", id: old.id, title: row.title, published: old.published };
   }
-  const ins = await db("hoiku_documents?select=id", { method: "POST", body: JSON.stringify({ ...row, published: false }) },
+  // 毎週の週報など、sources.json で auto_publish にしたものは、索引カードができたらすぐ公開する
+  const publishNow = p.publish === true && Boolean(card);
+  const ins = await db("hoiku_documents?select=id", { method: "POST", body: JSON.stringify({ ...row, published: publishNow }) },
     { Prefer: "return=representation" });
-  return { result: card ? "new" : "index_error", id: ins[0].id, title: row.title, published: false };
+  return { result: card ? "new" : "index_error", id: ins[0].id, title: row.title, published: publishNow };
+}
+
+// 巡回：古い週報などの公開をやめる（URLが prefix で始まり、keep に入っていないもの）
+async function retirePublic(p: Record<string, unknown>) {
+  const prefix = clean(p.prefix, 500);
+  if (!/^https?:\/\/[^/]+\/.{5,}/.test(prefix)) throw new Error("prefix が正しくありません");
+  const keep = new Set((Array.isArray(p.keep) ? p.keep : []).map((u) => clean(u, 1000)));
+  const rows = await db("hoiku_documents?visibility=eq.public&published=is.true&select=id,url,title");
+  const old = rows.filter((r: { url: string }) => r.url.startsWith(prefix) && !keep.has(r.url));
+  for (const r of old) {
+    await db(`hoiku_documents?id=eq.${r.id}`, { method: "PATCH", body: JSON.stringify({ published: false }) }, { Prefer: "return=minimal" });
+  }
+  return { retired: old.map((r: { title: string; url: string }) => ({ title: r.title, url: r.url })) };
 }
 
 // 保育者：園内資料を登録する
@@ -314,11 +332,11 @@ Deno.serve(async (req) => {
 
   try {
     // 巡回（合言葉が必要）
-    if (action === "list" || action === "upsert") {
+    if (action === "list" || action === "upsert" || action === "retire") {
       const token = Deno.env.get("HOIKU_CRAWLER_TOKEN") ?? "";
       if (token.length < 20) return reply(500, { error: "HOIKU_CRAWLER_TOKEN が Secrets にありません（20文字以上）" }, origin);
       if (!sameSecret(req.headers.get("x-hoiku-token") ?? "", token)) return reply(401, { error: "合言葉がちがいます" }, origin);
-      return reply(200, action === "list" ? await listPublic() : await upsertPublic(p), origin);
+      return reply(200, action === "list" ? await listPublic() : action === "retire" ? await retirePublic(p) : await upsertPublic(p), origin);
     }
     // 保育者（名簿に載っている人だけ）
     if (action === "add_internal" || action === "delete_internal") {

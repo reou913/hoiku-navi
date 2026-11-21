@@ -1,5 +1,5 @@
 {
-  "_説明": "巡回する資料の一覧。enabled を false にすると巡回しません。audience と category を \"auto\" にすると、Claude が中身を読んで決めます。checked はこの一覧を作るときに中身を確かめた日です（空欄は、まだ確かめていない候補。開けなかったら Issue に出ます）。watch の pages を true にすると、そのページからリンクされた同じサイトのページも拾います（include_words に合うリンクだけ）。",
+  "_説明": "巡回する資料の一覧。enabled を false にすると巡回しません。audience と category を \"auto\" にすると、Claude が中身を読んで決めます。checked はこの一覧を作るときに中身を確かめた日です（空欄は、まだ確かめていない候補。開けなかったら Issue に出ます）。watch の pages を true にすると、そのページからリンクされた同じサイトのページも拾います（include_words に合うリンクだけ）。　keep_latest：毎週の週報など、ページの上から新しい順に何件だけ拾うか。auto_publish：true なら確かめずにすぐ公開する（公的な週報だけに使う）。retire_prefix：このURLで始まる資料のうち、今回拾わなかった古いものを非公開にする。",
   "documents": [
     {
       "title": "令和8年度 薩摩川内市 保育施設利用の手引き",
@@ -152,6 +152,56 @@
       "enabled": true
     },
     {
+      "title": "保育士等の処遇改善について（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ae32/hoiku-syoguukaizenn.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "補助金・助成",
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
+      "title": "保育士修学資金・復職準備金・保育料（一部）の貸付について（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ae32/hoikushisyugakushikinkashitsuke.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "補助金・助成",
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
+      "title": "幼稚園教諭免許状および保育士資格取得に係る助成について（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ae32/hoikushishikakushutokushienjigyo.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "補助金・助成",
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
+      "title": "保育士等キャリアアップ研修について（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ae32/kosodate/nursery-school/career-enhancement.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "その他",
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
+      "title": "インフルエンザの流行発生注意報について（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ae06/kenko-fukushi/kenko-iryo/kansen/info/infuru.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "both",
+      "category": "感染症の流行",
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
       "_メモ": "候補：保育所保育指針（告示）。URLをこども家庭庁のページで確かめてから enabled を true に",
       "title": "保育所保育指針",
       "url": "https://www.mhlw.go.jp/file/06-Seisakujouhou-11900000-Koyoukintoujidoukateikyoku/0000160000.pdf",
@@ -252,7 +302,9 @@
         "副食",
         "病児",
         "誰でも",
-        "認定"
+        "認定",
+        "補助",
+        "助成"
       ],
       "exclude_words": [
         "申請書",
@@ -316,7 +368,14 @@
         "虐待",
         "睡眠",
         "熱中症",
-        "送迎"
+        "送迎",
+        "補助",
+        "交付金",
+        "整備",
+        "ICT",
+        "処遇",
+        "加算",
+        "公定価格"
       ],
       "exclude_words": [
         "様式",
@@ -326,6 +385,78 @@
       ],
       "max_files": 15,
       "checked": "",
+      "enabled": true
+    },
+    {
+      "name": "鹿児島県「保育士として働く」から（補助・助成・貸付・研修）",
+      "url": "https://www.pref.kagoshima.jp/ae32/kosodate/hoikusi/work.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "staff",
+      "category": "auto",
+      "pages": true,
+      "include_words": [
+        "補助",
+        "助成",
+        "貸付",
+        "処遇",
+        "研修",
+        "支援",
+        "人材バンク"
+      ],
+      "exclude_words": [
+        "企画提案",
+        "公募"
+      ],
+      "max_files": 10,
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
+      "name": "鹿児島県「感染症情報」から（病気ごとの注意）",
+      "url": "https://www.pref.kagoshima.jp/kenko-fukushi/kenko-iryo/kansen/info/index.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "both",
+      "category": "健康・感染症",
+      "pages": true,
+      "include_words": [
+        "インフルエンザ",
+        "手足口病",
+        "咽頭結膜熱",
+        "伝染性紅斑",
+        "マイコプラズマ",
+        "百日咳",
+        "麻しん",
+        "風しん",
+        "新型コロナ",
+        "溶血性",
+        "RS",
+        "胃腸炎"
+      ],
+      "exclude_words": [
+        "性感染症",
+        "梅毒",
+        "デング",
+        "ジカ"
+      ],
+      "max_files": 12,
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+ {
+      "name": "北薩感染症情報（川薩保健所の週報。薩摩川内市をふくむ）",
+      "url": "https://www.pref.kagoshima.jp/am03/chiiki/hokusatsu/kenko/hokusatukansenjyoho.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県 北薩地域振興局（川薩保健所）",
+      "audience": "both",
+      "category": "感染症の流行",
+      "include_words": ["週"],
+      "exclude_words": ["予防法", "訂正"],
+      "keep_latest": 2,
+      "auto_publish": true,
+      "retire_prefix": "https://www.pref.kagoshima.jp/am03/chiiki/hokusatsu/kenko/documents/52824_",
+      "checked": "2026-11-21",
       "enabled": true
     }
   ]

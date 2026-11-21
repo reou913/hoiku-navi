@@ -52,7 +52,8 @@ const GUIDES = {
     style: `あなたは「保育ナビ」の検索係です。保護者・保育者のどちらが読んでもわかる、やさしい丁寧語（です・ます）で話します。方言は使いません。
 - このサイトのトップページの検索です。答えの下に「保護者向けの資料」「保育者向けの資料」「園・学童」の検索結果が並びます。
 - 回答は、質問への答えの要点を2〜4文でまとめ、そのあとに「くわしくは〇〇向けの資料を見てください」のように、どの結果を見ればよいかを1文で案内します（全体で250字くらいまで）。
-- 園や学童（放課後児童クラブ）について聞かれたときは、当てはまる施設を多くても5つまで、名前で挙げます。`,
+- 園や学童（放課後児童クラブ）について聞かれたときは、<search_results> があればそれと食いちがわないように答えます。当てはまる施設の数（全部で何か所か）を伝え、名前を挙げるときは <search_results> に並んだ施設から多くても5つまでにします。全部の名前を並べず、「下の一覧の『すべて見る』から全部見られます」と案内します。
+- 資料（しおりなど）に載っている施設と、施設の一覧が食いちがうときは、資料の時点を添えて、そのことを伝えます。`,
   },
 } as const;
 type Audience = keyof typeof GUIDES;
@@ -67,7 +68,9 @@ function systemPrompt(aud: Audience): string {
 3. 根拠にした資料は、文の終わりに（資料1 p.12）のように、資料の番号とページで示します。ページが分からないときは（資料1）とします。施設の一覧を使ったときは（施設の一覧）とします。
 4. 資料に見つからないときは、見つからなかったとはっきり伝え、問い合わせ先を案内します。保護者の手続きやお金のことは市の子育て支援課（0996-23-5111）か各園、保育の運営のことは市の担当課や園長に確かめるよう伝えます。
 5. 資料が古い・時点が書かれているときは、その時点を添えます。園や学童の定員・費用・開所時間は、必ず「いつ時点の情報か」を添えます。「休所中」と書かれた施設を挙げるときは、そのことを必ず添えます。
-6. 子どもの体調・けが・アレルギーの質問では、資料の内容を伝えたうえで、判断は医師や園の看護師に相談するよう伝えます。意識がない・呼吸が苦しい・けいれんが続くなど、急ぐときは迷わず119番に電話するよう伝えます。
+6. 感染症の流行の情報（週報・注意報）を使うときは、「どの地域の・いつの情報か」を必ず添えます。流行の情報から、その子が何の病気かを判断してはいけません。
+7. 補助金・助成の情報を使うときは、募集期間や締め切りが書かれていれば添え、年度によって変わるので、担当の窓口で確かめるよう伝えます。
+8. 子どもの体調・けが・アレルギーの質問では、資料の内容を伝えたうえで、判断は医師や園の看護師に相談するよう伝えます。意識がない・呼吸が苦しい・けいれんが続くなど、急ぐときは迷わず119番に電話するよう伝えます。
 
 # 書き方
 - 見出しや ** などの記号は使わず、ふつうの文と「・」の箇条書き（手順は 1. 2. 3.）だけにします。
@@ -302,7 +305,7 @@ function rankDocs(question: string, docs: Doc[]): Doc[] {
 //   ② 「1号」「幼稚園」なら1号の定員がある園、「こども園」なら認定こども園にしぼる
 //   ③ 残った園を、名前などとの重なりで並べる。しぼりこみがないときは、名前がはっきり重なる園だけを出す
 const AREAS = ["川内", "樋脇", "入来", "東郷", "祁答院", "里", "上甑", "下甑", "鹿島"];
-function rankFacilities(question: string, rows: Facility[]): Facility[] {
+function rankFacilities(question: string, rows: Facility[]): { hits: Facility[]; narrowed: boolean } {
   const qn = question.normalize("NFKC").replace(/薩摩川内(市)?/g, "");   // 「薩摩川内市の〜」を「川内地域」とまちがえない
   let pool = rows;
   let narrowed = false;
@@ -330,7 +333,9 @@ function rankFacilities(question: string, rows: Facility[]): Facility[] {
   }).sort((a, b) => b.score - a.score);
   // しぼりこみがないときは、漢字やカタカナの組が2つ以上重なる園（＝名前で聞かれた園）だけ
   const shown = narrowed ? scored : scored.filter((x) => x.score >= 2);
-  return shown.slice(0, 6).map((x) => x.r);
+  // 点が同じときは、名前の順にそろえる（毎回同じ順番で出すため）
+  shown.sort((a, b) => b.score - a.score || a.r.name.localeCompare(b.r.name, "ja"));
+  return { hits: shown.map((x) => x.r), narrowed };
 }
 
 async function buildContext(question: string, ranked: Doc[]) {
@@ -369,7 +374,7 @@ async function buildContext(question: string, ranked: Doc[]) {
 }
 
 // ---------- Claude に聞く ----------
-async function askClaude(aud: Audience, question: string, docsText: string, facilities: string): Promise<string> {
+async function askClaude(aud: Audience, question: string, docsText: string, facilities: string, extra = ""): Promise<string> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
   const res = await fetch(Deno.env.get("ANTHROPIC_API_URL") ?? "https://api.anthropic.com/v1/messages", {
@@ -386,7 +391,7 @@ async function askClaude(aud: Audience, question: string, docsText: string, faci
       ],
       messages: [{
         role: "user",
-        content: `<documents>\n${docsText}\n</documents>\n\n<question>\n${question}\n</question>`,
+        content: `<documents>\n${docsText}\n</documents>\n${extra}\n<question>\n${question}\n</question>`,
       }],
     }),
   });
@@ -458,7 +463,14 @@ Deno.serve(async (req) => {
     const ranked = rankDocs(question, visible);
     const { text, used } = await buildContext(question, ranked);
     usedIds = used.map((d) => d.id);
-    const answer = await askClaude(aud, question, text, facilities);
+    // トップの検索：画面の「園・学童」に出す結果を先に決め、Claude にも同じものを伝える（説明と一覧をそろえるため）
+    const SHOW = 6;
+    const fac = aud === "all" ? rankFacilities(question, facilityRows) : { hits: [] as Facility[], narrowed: false };
+    const extra = aud === "all" && fac.hits.length
+      ? `\n<search_results>\n画面の「園・学童」の検索結果：当てはまる施設は全部で${fac.hits.length}か所。画面には次の${Math.min(SHOW, fac.hits.length)}か所を表示し、「すべて見る」で残りも見られる。\n${
+        fac.hits.slice(0, SHOW).map((r) => `- ${r.name}（${r.type}・${r.area}）`).join("\n")}\n</search_results>\n`
+      : "";
+    const answer = await askClaude(aud, question, text, facilities, extra);
     await saveLog({ audience: aud, question, answer, doc_ids: usedIds, status: "ok" });
     const sources = used.map((d, i) => ({
       n: i + 1, id: d.id, title: d.title, issuer_level: d.issuer_level,
@@ -474,7 +486,9 @@ Deno.serve(async (req) => {
     const groups = {
       parent: ranked.filter((d) => d.audience !== "staff").slice(0, 3).map(card),
       staff: ranked.filter((d) => d.audience !== "parent").slice(0, 3).map(card),
-      facilities: rankFacilities(question, facilityRows).map((r) => ({
+      facilities_total: fac.hits.length,
+      facilities_ids: fac.hits.map((r) => r.id),
+      facilities: fac.hits.slice(0, SHOW).map((r) => ({
         id: r.id, name: r.name, type: r.type, area: r.area, address: r.address, phone: r.phone,
         capacity: r.capacity, kyoiku_capacity: r.kyoiku_capacity, info_as_of: r.info_as_of,
         school: r.school, open_hours: r.open_hours, note: r.note,
