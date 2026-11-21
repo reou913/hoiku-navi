@@ -45,7 +45,7 @@ REPORT_FILE = ROOT / ".report.md"
 JST = timezone(timedelta(hours=9))
 USER_AGENT = "satsumasendai-hoiku-info/1.0 (+GitHub Pages; weekly crawl)"
 DELAY_SECONDS = 3.0
-MAX_FILES = 80            # 1回の巡回で開くファイル・ページの上限（超えた分は次の週）
+MAX_FILES = 200           # 1回の巡回で開くファイル・ページの上限（変わっていないものも数える。3秒ずつで約10分）
 MAX_DOWNLOAD = 30 * 1024 * 1024
 TIMEOUT = 60
 FILE_EXT = {".pdf": "pdf", ".docx": "docx", ".xlsx": "xlsx"}
@@ -302,6 +302,7 @@ def main() -> int:
                 "action": "upsert", "url": url, "title": name, "title_from": title_from,
                 "issuer_level": meta["issuer_level"], "issuer": meta.get("issuer", ""),
                 "audience": meta.get("audience", "auto"), "category": meta.get("category", "auto"),
+                "audiences": meta.get("audiences", "auto"), "ages": meta.get("ages", "auto"),
                 "file_type": got["file_type"], "text": text,
                 "publish": bool(meta.get("publish")),   # auto_publish の見張りだけ true
             })
@@ -364,7 +365,7 @@ def main() -> int:
             seen_all.add(href)
             count += 1
             kept.append(href)
-            meta = {k: w[k] for k in ("issuer_level", "issuer", "audience", "category") if k in w}
+            meta = {k: w[k] for k in ("issuer_level", "issuer", "audience", "audiences", "ages", "category") if k in w}
             meta["publish"] = bool(w.get("auto_publish"))
             register(href, meta, label, "link")
 

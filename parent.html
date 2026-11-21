@@ -23,7 +23,8 @@
   <button class="theme-btn" id="theme-btn" type="button" aria-label="表示の明るさを切りかえる">自動</button>
   <nav class="nav" aria-label="ページ">
     <a href="parent.html" aria-current="page">保護者の方</a>
-    <a href="staff.html">保育者の方</a>
+    <a href="student.html">中高生の方</a>
+    <a href="staff.html">保育者・先生の方</a>
     <a href="facilities.html">施設をさがす</a>
   </nav>
 </header>
@@ -54,8 +55,9 @@
   const docsEl = document.getElementById("docs");
   if (!Hoiku.ready()) { Hoiku.showSetup(document.getElementById("setup")); docsEl.innerHTML = ""; return; }
   try {
-    const docs = (await Hoiku.fetchDocs()).filter((d) => d.visibility === "public" && d.audience !== "staff");
-    Hoiku.renderDocList(docsEl, docs, { q: new URLSearchParams(location.search).get("q") || "" });
+    const params = new URLSearchParams(location.search);
+    const docs = (await Hoiku.fetchDocs()).filter((d) => d.visibility === "public" && Hoiku.forWho(d, "parent"));
+    Hoiku.renderDocList(docsEl, docs, { q: params.get("q") || "", age: params.get("age") || "" });
   } catch (e) {
     console.error(e);
     docsEl.innerHTML = '<div class="empty">資料を読みこめませんでした。時間をおいて開き直してください。</div>';

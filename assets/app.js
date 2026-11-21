@@ -59,7 +59,7 @@
   }
 
   // 本文（body）は画面からは読めないので、列を指定して取り出す
-  const DOC_COLS = "id,title,issuer_level,issuer,audience,visibility,category,url,file_path,file_type,source_updated,summary,headings,keywords,faq,updated_at";
+  const DOC_COLS = "id,title,issuer_level,issuer,audience,audiences,ages,visibility,category,url,file_path,file_type,source_updated,summary,headings,keywords,faq,updated_at";
 
   async function fetchDocs() {
     const { data, error } = await db().from("hoiku_documents").select(DOC_COLS)
@@ -70,18 +70,31 @@
 
   // ---------- 資料の一覧 ----------
   const LEVEL_ORDER = { "国": 0, "県": 1, "市": 2, "園": 3 };
+  const AGES = [["nyuyoji", "乳幼児"], ["shogaku", "小学生"], ["chugaku", "中学生"], ["koko", "高校生"]];
+  const AGE_LABEL = Object.fromEntries(AGES);
+  // その資料が、その人向けか（audiences の列がまだ空の資料は、前からある audience の列で決める）
+  function forWho(d, who) {
+    if (Array.isArray(d.audiences) && d.audiences.length) return d.audiences.includes(who);
+    if (who === "student") return false;
+    return d.audience === "both" || d.audience === who;
+  }
 
   function renderDocList(root, docs, opts = {}) {
-    const state = { level: "", category: "", q: opts.q || "" };
+    const state = { level: "", category: "", age: opts.age || "", q: opts.q || "" };
+    const agesHere = AGES.filter(([k]) => docs.some((d) => (d.ages || []).includes(k)));
     const levels = [...new Set(docs.map((d) => d.issuer_level))].sort((a, b) => LEVEL_ORDER[a] - LEVEL_ORDER[b]);
     const cats = [...new Set(docs.map((d) => d.category))].sort();
     root.innerHTML = `
       <div class="filters">
-        <input class="search" type="search" placeholder="ことばでさがす（例：登園、アレルギー、保育料）" aria-label="資料をことばでさがす">
+        <input class="search" type="search" placeholder="ことばでさがす（例：保育料、奨学金、アレルギー）" aria-label="資料をことばでさがす">
         <div class="chips" data-k="level" role="group" aria-label="発行元で絞り込む">
           <button class="chip" aria-pressed="true" data-v="">すべて</button>
           ${levels.map((l) => `<button class="chip" aria-pressed="false" data-v="${esc(l)}">${esc(l)}${l === "園" ? "内資料" : "の資料"}</button>`).join("")}
         </div>
+        ${agesHere.length ? `<div class="chips" data-k="age" role="group" aria-label="子どもの年齢で絞り込む">
+          <button class="chip" aria-pressed="${!state.age}" data-v="">すべての年齢</button>
+          ${agesHere.map(([k, l]) => `<button class="chip" aria-pressed="${state.age === k}" data-v="${k}">${l}</button>`).join("")}
+        </div>` : ""}
         <div class="chips" data-k="category" role="group" aria-label="分野で絞り込む">
           <button class="chip" aria-pressed="true" data-v="">すべての分野</button>
           ${cats.map((c) => `<button class="chip" aria-pressed="false" data-v="${esc(c)}">${esc(c)}</button>`).join("")}
@@ -101,6 +114,7 @@
       const shown = docs.filter((d) =>
         (!state.level || d.issuer_level === state.level) &&
         (!state.category || d.category === state.category) &&
+        (!state.age || !(d.ages || []).length || d.ages.includes(state.age)) &&   // 年齢の印がない資料は、どの年齢でも出す
         q.every((w) => hay(d).includes(w))
       ).sort((a, b) => LEVEL_ORDER[a.issuer_level] - LEVEL_ORDER[b.issuer_level]);
       count.textContent = `${shown.length}件の資料`;
@@ -117,7 +131,8 @@
           ? `<button class="btn ghost small" data-del="${d.id}">消す</button>` : "";
         return `<article class="doc">
           <div class="doc-top"><span class="level" data-l="${esc(d.issuer_level)}">${esc(d.issuer_level)}</span>
-            <span>${esc(d.issuer || "")}</span><span>・${esc(d.category)}</span></div>
+            <span>${esc(d.issuer || "")}</span><span>・${esc(d.category)}</span>
+            ${(d.ages || []).map((a) => `<span class="age">${esc(AGE_LABEL[a] || a)}</span>`).join("")}</div>
           <h3>${esc(d.title)}</h3>
           ${d.summary ? `<p class="summary">${esc(d.summary)}</p>` : ""}
           ${heads.length ? `<details><summary>見出し（${heads.length}）</summary><ol>${heads.map((h) =>
@@ -173,11 +188,15 @@
   const PERSONAL = /(\d{2,4}-\d{2,4}-\d{3,4})|(\d{10,11})|([\w.+-]+@[\w-]+\.[\w.]+)|(\d{3}-\d{4})/;
 
   function setupAsk(root, audience) {
-    const guide = audience === "staff"
-      ? { name: "しおり", sub: "保育者向けの資料係", hint: "例：嘔吐したときの消毒のしかたは？",
-          examples: ["嘔吐物の処理と消毒のしかたは？", "インフルエンザの登園のめやすは？", "保育所の変更届はどこに出す？"] }
-      : { name: "ひなた", sub: "保護者向けの案内役", hint: "例：4月から入園するには、いつまでに申し込む？",
-          examples: ["4月入園の申し込みはいつまで？", "3歳からの保育料は無料？", "1号認定で通える園は？"] };
+    const GUIDES = {
+      staff: { name: "しおり", sub: "保育者・先生向けの資料係", hint: "例：嘔吐したときの消毒のしかたは？",
+        examples: ["嘔吐物の処理と消毒のしかたは？", "インフルエンザの登園のめやすは？", "保育所の変更届はどこに出す？"] },
+      student: { name: "ひなた", sub: "中高生のための案内役", hint: "例：高校の授業料の支援はある？",
+        examples: ["高校の授業料の支援はある？", "返さなくてよい奨学金はある？", "学校のことで相談できるところは？"] },
+      parent: { name: "ひなた", sub: "保護者向けの案内役", hint: "例：4月から入園するには、いつまでに申し込む？",
+        examples: ["4月入園の申し込みはいつまで？", "3歳からの保育料は無料？", "小学生の就学援助とは？"] },
+    };
+    const guide = GUIDES[audience] || GUIDES.parent;
     const max = 300;
     root.innerHTML = `
       <div class="ask-head">${FACES[audience]}
@@ -190,7 +209,9 @@
       </div>
       <div class="ask-row"><span class="count">0 / ${max}</span><button class="btn send" type="button">聞いてみる</button></div>
       <div class="examples">${guide.examples.map((x) => `<button type="button">${esc(x)}</button>`).join("")}</div>
-      <p class="privacy">質問の内容は、サイトをよくするために記録します。お子さんの名前や電話番号など、個人の情報は書かないでください。</p>
+      <p class="privacy">${audience === "student"
+        ? "質問の内容は、サイトをよくするために記録するよ。自分や友だちの名前、電話番号、学校名など、個人の情報は書かないでね。"
+        : "質問の内容は、サイトをよくするために記録します。お子さんの名前や電話番号など、個人の情報は書かないでください。"}</p>
       <div class="status" role="status" aria-live="polite"></div>
       <div class="answers"></div>
       <p class="disclaimer">AIの答えはまちがえることがあります。大事なことは、元の資料や問い合わせ先で確かめてください。体調が急に悪いときは、迷わず119番へ。</p>`;
@@ -327,5 +348,7 @@
     });
   })();
 
-  window.Hoiku = { cfg, $, esc, db, ready, showSetup, fetchDocs, renderDocList, setupAsk, attachMic, bigrams, FACES, PERSONAL, COOLDOWN_SEC };
+  FACES.student = FACES.parent;   // 中高生のページもひなたが担当
+
+  window.Hoiku = { cfg, $, esc, db, ready, showSetup, fetchDocs, renderDocList, setupAsk, attachMic, bigrams, forWho, AGE_LABEL, FACES, PERSONAL, COOLDOWN_SEC };
 })();

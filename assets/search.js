@@ -13,28 +13,29 @@
   root.innerHTML = `
     <div class="finder-head">
       <h2>まとめてさがす</h2>
-      <p>保護者向けの資料・保育者向けの資料・市内の園や学童を、いっしょに探します。</p>
+      <p>保護者・中高生・保育者や先生向けの資料と、市内の園や学童を、いっしょに探します。</p>
     </div>
     <div class="mode" role="radiogroup" aria-label="さがし方">
       <button type="button" role="radio" aria-checked="true" data-mode="word">ことばでさがす</button>
       <button type="button" role="radio" aria-checked="false" data-mode="ai">AIにまとめてもらう</button>
     </div>
     <div class="ask-box finder-box">
-      <textarea rows="2" maxlength="${MAX}" placeholder="例：嘔吐、1号認定、可愛小の学童" aria-label="さがすことば"></textarea>
+      <textarea rows="2" maxlength="${MAX}" placeholder="例：嘔吐、奨学金、就学援助、可愛小の学童" aria-label="さがすことば"></textarea>
       <button class="mic" type="button" aria-pressed="false" aria-label="声で入力" hidden>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
       </button>
     </div>
     <div class="ask-row"><span class="mode-note"></span><button class="btn go" type="button">さがす</button></div>
     <div class="examples">
-      ${["4月入園の申し込みはいつまで？", "嘔吐したときの消毒", "1号認定で通える園", "可愛小の学童"].map((x) => `<button type="button">${esc(x)}</button>`).join("")}
+      ${["4月入園の申し込みはいつまで？", "高校の授業料の支援", "就学援助", "可愛小の学童"].map((x) => `<button type="button">${esc(x)}</button>`).join("")}
     </div>
     <div class="status" role="status" aria-live="polite"></div>
     <div class="finder-results" hidden>
       <div class="finder-answer" hidden></div>
       <div class="groups">
         <section class="group" data-g="parent"><h3><span class="dot"></span>保護者向けの資料</h3><div class="items"></div></section>
-        <section class="group" data-g="staff"><h3><span class="dot"></span>保育者向けの資料</h3><div class="items"></div></section>
+        <section class="group" data-g="student"><h3><span class="dot"></span>中高生向けの資料</h3><div class="items"></div></section>
+        <section class="group" data-g="staff"><h3><span class="dot"></span>保育者・先生向けの資料</h3><div class="items"></div></section>
         <section class="group" data-g="facilities"><h3><span class="dot"></span>園・学童</h3><div class="items"></div></section>
       </div>
     </div>`;
@@ -58,17 +59,19 @@
   go.addEventListener("click", run);
 
   // ---------- 結果を出す ----------
-  const pageOf = { parent: "parent.html", staff: "staff.html" };
+  const pageOf = { parent: "parent.html", student: "student.html", staff: "staff.html" };
+  const whoLabel = { parent: "保護者", student: "中高生", staff: "保育者・先生" };
   function docItem(d, g) {
     const more = `${pageOf[g]}?q=${encodeURIComponent(d.title)}`;
     return `<article class="hit">
       <div class="doc-top"><span class="level" data-l="${esc(d.issuer_level)}">${esc(d.issuer_level)}</span>
-        ${d.n ? `<span class="ref">資料${d.n}</span>` : ""}<span>${esc(d.category || "")}</span></div>
+        ${d.n ? `<span class="ref">資料${d.n}</span>` : ""}<span>${esc(d.category || "")}</span>
+        ${(d.ages || []).map((a) => `<span class="age">${esc(Hoiku.AGE_LABEL[a] || a)}</span>`).join("")}</div>
       <h4>${esc(d.title)}</h4>
       ${d.summary ? `<p>${esc(d.summary)}</p>` : ""}
       <div class="row">
         ${d.url && /^https:\/\//.test(d.url) ? `<a class="btn ghost small" href="${esc(d.url)}" target="_blank" rel="noopener">元の資料</a>` : ""}
-        <a class="btn ghost small" href="${more}">${g === "parent" ? "保護者" : "保育者"}のページで見る</a>
+        <a class="btn ghost small" href="${more}">${whoLabel[g]}のページで見る</a>
       </div></article>`;
   }
   function facItem(f) {
@@ -85,14 +88,17 @@
   }
   function show(groups, q) {
     results.hidden = false;
-    for (const g of ["parent", "staff", "facilities"]) {
+    for (const g of ["parent", "student", "staff", "facilities"]) {
       const box = root.querySelector(`.group[data-g="${g}"]`);
       const items = groups[g] || [];
-      box.querySelector("h3").dataset.count = `${items.length}件`;
+      const total = g === "facilities" ? (groups.facilities_total ?? items.length) : items.length;
+      box.querySelector("h3").dataset.count = total > items.length ? `${total}か所中${items.length}` : `${items.length}件`;
       const more = g === "facilities" ? `facilities.html?q=${encodeURIComponent(q)}` : `${pageOf[g]}`;
       box.querySelector(".items").innerHTML = items.length
-        ? items.map((x) => (g === "facilities" ? facItem(x) : docItem(x, g))).join("")
-        : `<p class="none">見つかりませんでした。<a href="${more}">${g === "facilities" ? "施設の一覧" : g === "parent" ? "保護者のページ" : "保育者のページ"}</a>から探せます。</p>`;
+        ? items.map((x) => (g === "facilities" ? facItem(x) : docItem(x, g))).join("") +
+          (g === "facilities" && total > items.length
+            ? `<a class="btn small all-link" href="facilities.html?ids=${(groups.facilities_ids || []).join(",")}&from=${encodeURIComponent(q)}">${total}か所すべて見る</a>` : "")
+        : `<p class="none">見つかりませんでした。<a href="${more}">${g === "facilities" ? "施設の一覧" : whoLabel[g] + "のページ"}</a>から探せます。</p>`;
     }
   }
 
@@ -155,7 +161,8 @@
       for (const b of qb) if (t.includes(b)) s += kanaOnly(b) ? 0.3 : 1;
       return { r, s };
     }).sort((a, b) => b.s - a.s);
-    return (narrowed ? scored : scored.filter((x) => x.s >= 2)).slice(0, 6).map((x) => x.r);
+    return (narrowed ? scored : scored.filter((x) => x.s >= 2))
+      .sort((a, b) => b.s - a.s || a.r.name.localeCompare(b.r.name, "ja")).map((x) => x.r);
   }
 
   async function wordSearch(q) {
@@ -163,10 +170,14 @@
     const docFields = (d) => [[d.title, 3], [(d.keywords || []).join(" "), 3], [(d.headings || []).map((h) => h.title).join(" "), 2],
       [(d.faq || []).join(" "), 2], [`${d.summary} ${d.category} ${d.issuer}`, 1]];
     const hits = rank(q, docs, docFields, 20);
+    const facs = findFacilities(q, fac);
     return {
-      parent: hits.filter((d) => d.audience !== "staff").slice(0, 4),
-      staff: hits.filter((d) => d.audience !== "parent").slice(0, 4),
-      facilities: findFacilities(q, fac),
+      facilities_total: facs.length,
+      facilities_ids: facs.map((f) => f.id),
+      parent: hits.filter((d) => Hoiku.forWho(d, "parent")).slice(0, 4),
+      student: hits.filter((d) => Hoiku.forWho(d, "student")).slice(0, 4),
+      staff: hits.filter((d) => Hoiku.forWho(d, "staff")).slice(0, 4),
+      facilities: facs.slice(0, 6),
     };
   }
 

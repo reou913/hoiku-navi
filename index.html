@@ -23,16 +23,17 @@
   <button class="theme-btn" id="theme-btn" type="button" aria-label="表示の明るさを切りかえる">自動</button>
   <nav class="nav" aria-label="ページ">
     <a href="parent.html">保護者の方</a>
-    <a href="staff.html">保育者の方</a>
+    <a href="student.html">中高生の方</a>
+    <a href="staff.html">保育者・先生の方</a>
     <a href="facilities.html">施設をさがす</a>
   </nav>
 </header>
 
 <main>
   <section class="hero">
-    <span class="eyebrow">薩摩川内市の保育と子育て</span>
+    <span class="eyebrow">薩摩川内市の保育・子育て・教育</span>
     <h1>保育の「わからない」を、<br>公式の資料からさがす。</h1>
-    <p class="lead">国・県・市が公開している資料と、市内の園・学童の情報を1か所にまとめました。AIの案内役は、ここにある資料だけをもとに、出典つきで答えます。</p>
+    <p class="lead">乳幼児から高校生まで。国・県・市が公開している資料と、市内の園・学童の情報を1か所にまとめました。AIの案内役は、ここにある資料だけをもとに、出典つきで答えます。</p>
   </section>
 
   <section class="finder" id="finder" aria-label="まとめてさがす"></section>
@@ -45,10 +46,16 @@
       <p>入園の申し込み、保育料、子育ての支援など。案内役の「ひなた」が、やさしく答えます。</p>
       <span class="go">保護者のページへ →</span>
     </a>
+    <a class="door student" href="student.html">
+      <span id="face-student"></span>
+      <h2>中高生の方へ</h2>
+      <p>高校の学費の支援、返さなくてよい給付金、奨学金、相談できるところ。ひなたが、わかりやすく答えます。</p>
+      <span class="go">中高生のページへ →</span>
+    </a>
     <a class="door staff" href="staff.html">
       <span id="face-staff"></span>
-      <h2>保育者の方へ</h2>
-      <p>感染症対策、事故防止、手続きなど。資料係の「しおり」が、手順とページを示します。</p>
+      <h2>保育者・先生の方へ</h2>
+      <p>感染症対策、事故防止、補助金、手続きなど。資料係の「しおり」が、手順とページを示します。</p>
       <span class="go">保育者のページへ →</span>
     </a>
     <a class="door facility" href="facilities.html">
@@ -78,7 +85,7 @@
 <script src="assets/app.js"></script>
 <script src="assets/search.js"></script>
 <script>
-  for (const k of ["parent", "staff", "facility"]) document.getElementById("face-" + k).innerHTML = Hoiku.FACES[k];
+  for (const k of ["parent", "student", "staff", "facility"]) document.getElementById("face-" + k).innerHTML = Hoiku.FACES[k];
 </script>
 </body>
 </html>

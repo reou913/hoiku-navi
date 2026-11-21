@@ -14,6 +14,8 @@
   --parent-soft: #FDEBE3;
   --staff: #3F5BA9;
   --staff-soft: #E8EDF9;
+  --student: #7A4FC0;
+  --student-soft: #F0EAFB;
   --green: #23845F;
   --green-soft: #E2F2EA;
   --warn: #A85700;
@@ -36,6 +38,8 @@
     --parent-soft: #3A2219;
     --staff: #93AAF2;
     --staff-soft: #1E2541;
+    --student: #B79BF5;
+    --student-soft: #2A2140;
     --green: #5FCB9F;
     --green-soft: #15302A;
     --warn: #FFB357;
@@ -55,6 +59,8 @@
   --parent-soft: #3A2219;
   --staff: #93AAF2;
   --staff-soft: #1E2541;
+  --student: #B79BF5;
+  --student-soft: #2A2140;
   --green: #5FCB9F;
   --green-soft: #15302A;
   --warn: #FFB357;
@@ -63,6 +69,7 @@
   --shadow: none;
   }
 body[data-aud="staff"] { --accent: var(--staff); --accent-soft: var(--staff-soft); }
+body[data-aud="student"] { --accent: var(--student); --accent-soft: var(--student-soft); }
 body[data-aud="facility"] { --accent: var(--green); --accent-soft: var(--green-soft); }
 
 * { box-sizing: border-box; }
@@ -244,7 +251,7 @@ svg { flex-shrink: 0; }
 
 /* トップページ */
 .doors { display: grid; gap: 12px; margin-top: 16px; }
-@media (min-width: 720px) { .doors { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 720px) { .doors { grid-template-columns: repeat(2, 1fr); } }
 .door { background: var(--surface); border-radius: 26px; padding: 18px; text-decoration: none; color: var(--ink); box-shadow: var(--shadow); display: grid; gap: 6px; border: 2px solid transparent; }
 .door:hover { border-color: var(--line); }
 .door .face { width: 64px; height: 64px; }
@@ -253,6 +260,7 @@ svg { flex-shrink: 0; }
 .door .go { font-weight: 900; font-size: .875rem; }
 .door.parent .go { color: var(--parent); }
 .door.staff .go { color: var(--staff); }
+.door.student .go { color: var(--student); }
 .door.facility .go { color: var(--green); }
 .points { background: var(--surface); border-radius: 24px; padding: 16px 18px; box-shadow: var(--shadow); }
 .points ul { margin: 0; padding-left: 1.2em; }
@@ -295,3 +303,8 @@ svg { flex-shrink: 0; }
 /* 表示の切りかえボタン（自動・ライト・ダーク） */
 .theme-btn { margin-left: auto; border: 1px solid var(--line); background: var(--surface); color: var(--sub); border-radius: 999px; padding: 4px 10px; font-size: .75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 @media (min-width: 561px) { .theme-btn { order: 3; margin-left: 0; } }
+
+/* 小中高への拡大 */
+.doc-top .age { background: var(--student-soft); color: var(--student); border-radius: 6px; padding: 0 6px; }
+.group[data-g="student"] .dot { background: var(--student); }
+@media (min-width: 760px) { .groups { grid-template-columns: repeat(2, 1fr); } }
