@@ -10,7 +10,8 @@
 
 巡回する資料は sources.json に書いてあります。
   documents … 決まった資料（URLを1つずつ書く）
-  watch     … 見張るページ（そのページにリンクされた PDF・Word・Excel を見つけて登録する）
+  watch     … 見張るページ（そのページにリンクされた PDF・Word・Excel を見つけて登録する。
+              "pages": true なら、リンク先のふつうのページも登録する）
 
 新しく見つかった資料は「公開しない（published=false）」のまま登録されます。
 れおさんが Supabase の Table Editor で中身を確かめてから、published を true にします。
@@ -44,7 +45,7 @@ REPORT_FILE = ROOT / ".report.md"
 JST = timezone(timedelta(hours=9))
 USER_AGENT = "satsumasendai-hoiku-info/1.0 (+GitHub Pages; weekly crawl)"
 DELAY_SECONDS = 3.0
-MAX_FILES = 60            # 1回の巡回で開くファイルの上限
+MAX_FILES = 80            # 1回の巡回で開くファイル・ページの上限（超えた分は次の週）
 MAX_DOWNLOAD = 30 * 1024 * 1024
 TIMEOUT = 60
 FILE_EXT = {".pdf": "pdf", ".docx": "docx", ".xlsx": "xlsx"}
@@ -317,7 +318,13 @@ def main() -> int:
             continue
         register(d["url"], d, d.get("title", ""), "sources")
 
-    # 2. 見張るページ（リンクされた PDF・Word・Excel を探す）
+    # 2. 見張るページ
+    #   ・リンクされた PDF・Word・Excel を探す
+    #   ・"pages": true のときは、同じサイトのふつうのページ（.html）も拾う
+    #     （市の「子育て」の目次ページから、予防接種・手当などのページを集めるため）
+    #     ページのリンクにはメニューも混ざるので、include_words（拾うことば）を必ず書く
+    explicit = {d["url"] for d in sources.get("documents", [])}   # documents に書いたものは二重に登録しない
+    seen_all: set[str] = set()
     for w in sources.get("watch", []):
         if not w.get("enabled", True):
             continue
@@ -328,13 +335,17 @@ def main() -> int:
             continue
         words = w.get("include_words") or []
         exclude = w.get("exclude_words") or []
-        seen = set()
+        want_pages = bool(w.get("pages")) and bool(words)
+        host = urllib.parse.urlsplit(w["url"]).netloc
         count = 0
         for href, text in page["links"]:
             href = href.split("#")[0]
-            if href in seen or kind_of(href) not in ("pdf", "docx", "xlsx"):
+            kind = kind_of(href)
+            is_file = kind in ("pdf", "docx", "xlsx")
+            is_page = (want_pages and kind == "html" and urllib.parse.urlsplit(href).netloc == host
+                       and href.endswith(".html") and not href.endswith("index.html"))   # 目次のページは拾わない
+            if not (is_file or is_page) or href in seen_all or href in explicit or href == w["url"]:
                 continue
-            seen.add(href)
             label = re.sub(r"[（(](PDF|Word|Excel|ワード|エクセル)[^）)]*[）)]", "", text, flags=re.I).strip()
             if words and not any(k in label for k in words):
                 continue
@@ -342,6 +353,7 @@ def main() -> int:
                 continue
             if count >= w.get("max_files", 10):
                 break
+            seen_all.add(href)
             count += 1
             meta = {k: w[k] for k in ("issuer_level", "issuer", "audience", "category") if k in w}
             register(href, meta, label, "link")

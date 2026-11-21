@@ -1,5 +1,5 @@
 {
-  "_説明": "巡回する資料の一覧。enabled を false にすると巡回しません。audience と category を \"auto\" にすると、Claude が中身を読んで決めます。checked はこの一覧を作るときに中身を確かめた日です（空欄は、まだ確かめていない候補）。",
+  "_説明": "巡回する資料の一覧。enabled を false にすると巡回しません。audience と category を \"auto\" にすると、Claude が中身を読んで決めます。checked はこの一覧を作るときに中身を確かめた日です（空欄は、まだ確かめていない候補。開けなかったら Issue に出ます）。watch の pages を true にすると、そのページからリンクされた同じサイトのページも拾います（include_words に合うリンクだけ）。",
   "documents": [
     {
       "title": "令和8年度 薩摩川内市 保育施設利用の手引き",
@@ -82,6 +82,76 @@
       "enabled": true
     },
     {
+      "title": "保育施設等一覧（令和9年4月時点）",
+      "url": "https://www.city.satsumasendai.lg.jp/soshiki/1026/1/1/1/16659.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "入園・手続き",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "放課後児童クラブ",
+      "url": "https://www.city.satsumasendai.lg.jp/soshiki/1026/1/1/3/1595.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "学童・放課後",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "地域子育て支援センター",
+      "url": "https://www.city.satsumasendai.lg.jp/soshiki/1026/1/1/2/1589.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "子育て支援",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "ファミリー・サポート・センター薩摩川内",
+      "url": "https://www.city.satsumasendai.lg.jp/soshiki/1026/1/1/3/149.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "子育て支援",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "救急当番医（夜間・休日の病院）",
+      "url": "https://www.city.satsumasendai.lg.jp/soshiki/1224/1226/2/1/9730.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "both",
+      "category": "健康・感染症",
+      "checked": "2026-11-12",
+      "enabled": true
+    },
+    {
+      "title": "子ども・家庭の相談窓口（鹿児島県）",
+      "url": "https://www.pref.kagoshima.jp/ae08/kenko-fukushi/kodomo/sodan/soudan.html",
+      "issuer_level": "県",
+      "issuer": "鹿児島県",
+      "audience": "parent",
+      "category": "子育て支援",
+      "checked": "",
+      "enabled": true
+    },
+    {
+      "title": "保育所や幼稚園等における虐待の防止及び発生時の対応等に関するガイドライン",
+      "url": "https://www.mext.go.jp/content/20260908-mxt_youji-000045826_3.pdf",
+      "issuer_level": "国",
+      "issuer": "こども家庭庁・文部科学省",
+      "audience": "staff",
+      "category": "安全・事故防止",
+      "checked": "2026-11-20",
+      "enabled": true
+    },
+    {
       "_メモ": "候補：保育所保育指針（告示）。URLをこども家庭庁のページで確かめてから enabled を true に",
       "title": "保育所保育指針",
       "url": "https://www.mhlw.go.jp/file/06-Seisakujouhou-11900000-Koyoukintoujidoukateikyoku/0000160000.pdf",
@@ -113,7 +183,11 @@
       "audience": "parent",
       "category": "auto",
       "include_words": [],
-      "exclude_words": ["申請書", "様式", "記入例"],
+      "exclude_words": [
+        "申請書",
+        "様式",
+        "記入例"
+      ],
       "max_files": 6,
       "enabled": true
     },
@@ -125,20 +199,133 @@
       "audience": "parent",
       "category": "auto",
       "include_words": [],
-      "exclude_words": ["申請書", "様式", "記入例"],
+      "exclude_words": [
+        "申請書",
+        "様式",
+        "記入例"
+      ],
       "max_files": 6,
       "enabled": true
     },
     {
-      "name": "児童福祉・ひとり親福祉のページにある資料",
+      "name": "児童福祉・ひとり親福祉のページから（資料とページ）",
       "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/5/index.html",
       "issuer_level": "市",
       "issuer": "薩摩川内市",
       "audience": "parent",
       "category": "auto",
-      "include_words": ["病児", "一時", "ファミリー", "子育て", "支援", "手当", "医療"],
-      "exclude_words": ["申請書", "様式", "記入例"],
-      "max_files": 6,
+      "include_words": [
+        "病児",
+        "一時",
+        "ファミリー",
+        "子育て",
+        "支援",
+        "手当",
+        "医療"
+      ],
+      "exclude_words": [
+        "申請書",
+        "様式",
+        "記入例"
+      ],
+      "max_files": 12,
+      "enabled": true,
+      "pages": true,
+      "checked": "2026-11-12"
+    },
+    {
+      "name": "保育のページの目次から（資料とページ）",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/4/index.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "auto",
+      "pages": true,
+      "include_words": [
+        "保育",
+        "幼稚園",
+        "こども園",
+        "入園",
+        "一時",
+        "延長",
+        "無償",
+        "副食",
+        "病児",
+        "誰でも",
+        "認定"
+      ],
+      "exclude_words": [
+        "申請書",
+        "様式",
+        "記入例",
+        "入札",
+        "募集要項（事業者"
+      ],
+      "max_files": 12,
+      "checked": "",
+      "enabled": true
+    },
+    {
+      "name": "子育てのページの目次から（資料とページ）",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kosodate/index.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市",
+      "audience": "parent",
+      "category": "auto",
+      "pages": true,
+      "include_words": [
+        "予防接種",
+        "健診",
+        "健康診査",
+        "医療費",
+        "手当",
+        "妊娠",
+        "出産",
+        "子育て",
+        "相談",
+        "発達",
+        "療育"
+      ],
+      "exclude_words": [
+        "申請書",
+        "様式",
+        "記入例",
+        "入札"
+      ],
+      "max_files": 15,
+      "checked": "",
+      "enabled": true
+    },
+    {
+      "name": "こども家庭庁の保育のページから（ガイドラインなど）",
+      "url": "https://www.cfa.go.jp/policies/hoiku/",
+      "issuer_level": "国",
+      "issuer": "こども家庭庁",
+      "audience": "staff",
+      "category": "auto",
+      "pages": true,
+      "include_words": [
+        "ガイドライン",
+        "指針",
+        "手引",
+        "マニュアル",
+        "安全",
+        "事故",
+        "アレルギー",
+        "感染症",
+        "虐待",
+        "睡眠",
+        "熱中症",
+        "送迎"
+      ],
+      "exclude_words": [
+        "様式",
+        "入札",
+        "調達",
+        "Q&A（自治体"
+      ],
+      "max_files": 15,
+      "checked": "",
       "enabled": true
     }
   ]
