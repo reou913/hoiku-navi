@@ -23,8 +23,9 @@
   --accent: var(--parent);
   --accent-soft: var(--parent-soft);
 }
+/* 暗い表示：スマホの設定が暗い表示で、「ライト」を選んでいないとき＋「ダーク」を選んだとき */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #171412;
     --surface: #211D1A;
     --field: #2B2622;
@@ -43,6 +44,24 @@
     --shadow: none;
   }
 }
+:root[data-theme="dark"] {
+  --bg: #171412;
+  --surface: #211D1A;
+  --field: #2B2622;
+  --ink: #F3EDE6;
+  --sub: #B3A598;
+  --line: #362F29;
+  --parent: #FF9268;
+  --parent-soft: #3A2219;
+  --staff: #93AAF2;
+  --staff-soft: #1E2541;
+  --green: #5FCB9F;
+  --green-soft: #15302A;
+  --warn: #FFB357;
+  --warn-soft: #33240F;
+  --on-accent: #1A1310;
+  --shadow: none;
+  }
 body[data-aud="staff"] { --accent: var(--staff); --accent-soft: var(--staff-soft); }
 body[data-aud="facility"] { --accent: var(--green); --accent-soft: var(--green-soft); }
 
@@ -152,11 +171,15 @@ svg { flex-shrink: 0; }
 .level[data-l="市"] { background: #D9592B; }
 .level[data-l="園"] { background: #3F5BA9; }
 @media (prefers-color-scheme: dark) {
-  .level[data-l="国"] { background: #B49BF0; }
-  .level[data-l="県"] { background: #6CC6E0; }
-  .level[data-l="市"] { background: #FF9268; }
-  .level[data-l="園"] { background: #93AAF2; }
+  :root:not([data-theme="light"]) .level[data-l="国"] { background: #B49BF0; }
+  :root:not([data-theme="light"]) .level[data-l="県"] { background: #6CC6E0; }
+  :root:not([data-theme="light"]) .level[data-l="市"] { background: #FF9268; }
+  :root:not([data-theme="light"]) .level[data-l="園"] { background: #93AAF2; }
 }
+:root[data-theme="dark"] .level[data-l="国"] { background: #B49BF0; }
+:root[data-theme="dark"] .level[data-l="県"] { background: #6CC6E0; }
+:root[data-theme="dark"] .level[data-l="市"] { background: #FF9268; }
+:root[data-theme="dark"] .level[data-l="園"] { background: #93AAF2; }
 .doc h3 { margin: 6px 0 4px; font-size: 1.0625rem; line-height: 1.5; }
 .doc .summary { margin: 0; color: var(--sub); font-size: .9375rem; }
 .doc details { margin-top: 8px; }
@@ -242,7 +265,8 @@ svg { flex-shrink: 0; }
 .mode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--field); border-radius: 999px; padding: 4px; margin-top: 14px; }
 .mode button { border: 0; background: transparent; border-radius: 999px; padding: 8px 6px; font-weight: 900; font-size: .875rem; color: var(--sub); }
 .mode button[aria-checked="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
-@media (prefers-color-scheme: dark) { .mode button[aria-checked="true"] { background: var(--line); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mode button[aria-checked="true"] { background: var(--line); } }
+:root[data-theme="dark"] .mode button[aria-checked="true"] { background: var(--line); }
 .finder-box textarea { min-height: 64px; }
 .mode-note { color: var(--sub); font-size: .75rem; flex: 1; min-width: 0; }
 .finder-results { margin-top: 12px; display: grid; gap: 14px; }
@@ -265,3 +289,9 @@ svg { flex-shrink: 0; }
 .finder-answer .bubble-a .face { width: 40px; height: 40px; }
 .fac .closed { display: inline-block; font-size: .75rem; font-weight: 900; color: var(--warn); background: var(--warn-soft); border-radius: 8px; padding: 1px 8px; margin-right: 6px; }
 .hit .closed { font-size: .75rem; font-weight: 900; color: var(--warn); background: var(--warn-soft); border-radius: 8px; padding: 1px 8px; }
+.all-link { justify-self: start; }
+.from-search { background: var(--green-soft); color: var(--green); border-radius: 14px; padding: 10px 12px; font-size: .8125rem; font-weight: 700; display: grid; gap: 8px; justify-items: start; }
+
+/* 表示の切りかえボタン（自動・ライト・ダーク） */
+.theme-btn { margin-left: auto; border: 1px solid var(--line); background: var(--surface); color: var(--sub); border-radius: 999px; padding: 4px 10px; font-size: .75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+@media (min-width: 561px) { .theme-btn { order: 3; margin-left: 0; } }

@@ -304,5 +304,28 @@
     });
   }
 
+  // ---------- 表示の切りかえ（自動 → ライト → ダーク） ----------
+  (function setupTheme() {
+    const btn = document.getElementById("theme-btn");
+    if (!btn) return;
+    const LABEL = { auto: "表示：自動", light: "表示：ライト", dark: "表示：ダーク" };
+    const ORDER = ["auto", "light", "dark"];
+    const read = () => { try { return localStorage.getItem("hoiku-theme") || "auto"; } catch { return "auto"; } };
+    function apply(t) {
+      if (t === "auto") delete document.documentElement.dataset.theme;
+      else document.documentElement.dataset.theme = t;
+      btn.textContent = LABEL[t];
+      // スマホの上の帯の色も合わせる
+      const dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.content = dark ? "#171412" : "#FBF7F0"; });
+    }
+    apply(read());
+    btn.addEventListener("click", () => {
+      const next = ORDER[(ORDER.indexOf(read()) + 1) % ORDER.length];
+      try { if (next === "auto") localStorage.removeItem("hoiku-theme"); else localStorage.setItem("hoiku-theme", next); } catch { /* 保存できなくても切りかえる */ }
+      apply(next);
+    });
+  })();
+
   window.Hoiku = { cfg, $, esc, db, ready, showSetup, fetchDocs, renderDocList, setupAsk, attachMic, bigrams, FACES, PERSONAL, COOLDOWN_SEC };
 })();
