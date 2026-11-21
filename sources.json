@@ -218,37 +218,6 @@
       "enabled": true
     },
     {
-      "title": "令和8年度 特別奨学生募集要項（薩摩川内市）",
-      "url": "https://www.city.satsumasendai.lg.jp/material/files/group/47/R8tokubetusyougakuseibosyuuyoukou.pdf",
-      "issuer_level": "市",
-      "issuer": "薩摩川内市教育委員会",
-      "audiences": [
-        "parent",
-        "student"
-      ],
-      "ages": "auto",
-      "category": "奨学金・就学支援",
-      "checked": "2026-11-21",
-      "enabled": true
-    },
-    {
-      "title": "令和7年度 薩摩川内市の教育",
-      "url": "https://www.city.satsumasendai.lg.jp/material/files/group/46/r7satsumasendaisinokyoiku.pdf",
-      "issuer_level": "市",
-      "issuer": "薩摩川内市教育委員会",
-      "audiences": [
-        "parent",
-        "staff"
-      ],
-      "ages": [
-        "shogaku",
-        "chugaku"
-      ],
-      "category": "学校生活・相談",
-      "checked": "2026-11-21",
-      "enabled": true
-    },
-    {
       "title": "令和8年度 鹿児島県国公立高等学校等奨学のための給付金",
       "url": "https://www.pref.kagoshima.jp/ba05/shougakukyuhukin.html",
       "issuer_level": "県",
@@ -298,6 +267,54 @@
       "category": "学校生活・相談",
       "checked": "2026-11-21",
       "enabled": true
+    },
+    {
+      "title": "",
+      "_メモ": "市の例規集（特別奨学生の決まり）。名前はページの見出しから取る",
+      "url": "https://www1.g-reiki.net/city.satsumasendai/reiki_honbun/r054RG00001177.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市（例規集）",
+      "audiences": [
+        "parent",
+        "student"
+      ],
+      "ages": "auto",
+      "category": "奨学金・就学支援",
+      "checked": "",
+      "enabled": true
+    },
+    {
+      "title": "令和8年度 特別奨学生募集要項（薩摩川内市）",
+      "url": "https://www.city.satsumasendai.lg.jp/material/files/group/47/R8tokubetusyougakuseibosyuuyoukou.pdf",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市教育委員会",
+      "audiences": [
+        "parent",
+        "student"
+      ],
+      "ages": "auto",
+      "category": "奨学金・就学支援",
+      "checked": "2026-11-21",
+      "enabled": false,
+      "_メモ": "2026-11-21 の巡回で404。PDFが載っている市のページを見張る形に変える"
+    },
+    {
+      "title": "令和7年度 薩摩川内市の教育",
+      "url": "https://www.city.satsumasendai.lg.jp/material/files/group/46/r7satsumasendaisinokyoiku.pdf",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市教育委員会",
+      "audiences": [
+        "parent",
+        "staff"
+      ],
+      "ages": [
+        "shogaku",
+        "chugaku"
+      ],
+      "category": "学校生活・相談",
+      "checked": "2026-11-21",
+      "enabled": false,
+      "_メモ": "2026-11-21 の巡回で404。PDFが載っている市のページを見張る形に変える"
     },
     {
       "_メモ": "候補：保育所保育指針（告示）。URLをこども家庭庁のページで確かめてから enabled を true に",
@@ -529,7 +546,7 @@
         "風しん",
         "新型コロナ",
         "溶血性",
-        "RS",
+        "RSウイルス",
         "胃腸炎"
       ],
       "exclude_words": [
@@ -596,7 +613,11 @@
         "English",
         "Leaflet",
         "WARP",
-        "旧制度"
+        "旧制度",
+        "法律案",
+        "国会",
+        "可決",
+        "審議"
       ],
       "max_files": 10,
       "checked": "2026-11-21",
@@ -718,26 +739,21 @@
       "enabled": true
     },
     {
-      "name": "薩摩川内市 教育委員会のページから（就学援助・奨学金・離島の高校生）",
-      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kyoiku/index.html",
+      "name": "薩摩川内市 教育委員会のページから（目標・基本計画）",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kyoikuiinkai/index.html",
       "issuer_level": "市",
       "issuer": "薩摩川内市教育委員会",
-      "audiences": "auto",
-      "ages": "auto",
-      "category": "auto",
+      "audiences": [
+        "staff"
+      ],
+      "ages": [
+        "shogaku",
+        "chugaku"
+      ],
+      "category": "学校生活・相談",
       "pages": true,
       "include_words": [
-        "就学援助",
-        "奨学",
-        "修学支援",
-        "離島",
-        "通学",
-        "不登校",
-        "スマイル",
-        "特別支援",
-        "給食",
-        "部活動",
-        "相談"
+        "目標・基本計画"
       ],
       "exclude_words": [
         "申請書",
@@ -752,8 +768,30 @@
         "会議録",
         "議事録"
       ],
-      "max_files": 15,
-      "checked": "",
+      "max_files": 3,
+      "checked": "2026-11-21",
+      "enabled": true
+    },
+    {
+      "name": "「薩摩川内市の教育」（毎年度の冊子。新しい年度のものを拾う）",
+      "url": "https://www.city.satsumasendai.lg.jp/kosodate_kyoiku/kyoikuiinkai/6884.html",
+      "issuer_level": "市",
+      "issuer": "薩摩川内市教育委員会",
+      "audiences": [
+        "parent",
+        "staff"
+      ],
+      "ages": [
+        "shogaku",
+        "chugaku"
+      ],
+      "category": "学校生活・相談",
+      "include_words": [
+        "薩摩川内市の教育"
+      ],
+      "exclude_words": [],
+      "keep_latest": 1,
+      "checked": "2026-11-21",
       "enabled": true
     }
   ]
